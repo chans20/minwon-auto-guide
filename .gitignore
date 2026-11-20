@@ -1,0 +1,37 @@
+# 키·인증 (절대 커밋 금지)
+.env
+*.pem
+*.key
+**/tuning_secret*.py
+
+# 데이터 (AI허브 데이터는 재배포 금지 — 스크립트만 공유)
+ml/dataset/*.csv
+ml/dataset/*.jsonl
+ml/data/
+*.zip
+*.tar
+*.part*
+
+# 실행 결과 (md 요약만 커밋, jsonl 원본은 제외)
+**/results/*.jsonl
+out.mp3
+*.mp3
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+*.apk
+*.ipa
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
