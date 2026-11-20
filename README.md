@@ -22,7 +22,7 @@
 
 | 폴더 | 내용 | 담당 |
 |---|---|---|
-| `backend/` | FastAPI 서버: `/input`(OCR), `/analyze`(분류·판정·안내), `/tts`(음성) | 진완(통합), 최동훈(입출력) |
+| `backend/` | FastAPI 서버 `api.py`: `/input`(OCR), `/analyze`(분류·판정·안내), `/tts`(음성), `/guide`(한 번에) | 진완(통합), 최동훈(입출력) |
 | `app/` | React Native + Expo 앱 | 진완 |
 | `ml/` | 데이터 전처리, 튜닝 평가 스크립트, 결과 | 김찬결 |
 | `docs/` | 기술문서, 데이터 분석, 발표 자료 | 이상훈 |
@@ -35,6 +35,7 @@ pip install -r requirements.txt
 cp ../.env.example .env    # 키 채우기
 uvicorn api:app --host 0.0.0.0 --port 8000
 # http://<서버IP>:8000/docs 에서 테스트
+# (api_io.py 는 입출력만 있는 이전 버전. api.py 가 통합본)
 ```
 
 단독 테스트:
@@ -52,6 +53,21 @@ python3 analyze.py "집 앞 도로에 불법주차가 너무 많아요"
 
 교통·자동차 / 도로·안전시설 / 건축·토지 / 환경·위생 / 산림·농업 / 복지·보건 / 세무·행정 / 경제·문화
 (원본 18개 유형과의 매핑: `backend/mapping.json`)
+
+## 앱에서 호출하는 법 (요약)
+
+| 할 일 | 호출 | 보내는 것 | 받는 것 |
+|---|---|---|---|
+| 텍스트 민원 분석 | `POST /analyze` (JSON) | `{"text": "..."}` | `category, subtype, intent, fields[], missing[], insufficient[], suggestions[], channels[], guide_text, emergency` |
+| 사진 민원 | `POST /input` (multipart) → `/analyze` | `image` 파일 | `{text, source}` → 위와 같음 |
+| 안내문 읽어주기 | `POST /tts` (JSON) | `{"text": guide_text}` | mp3 바이너리 |
+| 전부 한 번에 | `POST /guide` (multipart) | `text` 또는 `image`, `with_audio=true` | 분석 결과 + `audio_base64` |
+
+- `/analyze` 는 HCX 3회 호출로 **4~10초** 걸립니다. 로딩 표시 필수.
+- 앱은 http 서버를 기본 차단하므로 Expo `app.json` 에 Android `usesCleartextTraffic`, iOS ATS 예외 필요.
+- `fields[].status` 는 `sufficient | insufficient | missing | not_applicable`. 화면엔 O / △ / X / - 로.
+- `emergency` 가 null 이 아니면 `{number, note}` — 맨 위에 빨간 배너로.
+- `category` 가 null 이면 입력이 너무 짧은 것. `guide_text` 를 그대로 보여주면 됨.
 
 ## 주의
 

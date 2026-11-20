@@ -27,7 +27,6 @@ import requests
 
 HERE = Path(__file__).resolve().parent
 HOST = "https://clovastudio.stream.ntruss.com"
-TUNED_TASK_ID = "k6n4aqqb"          # minwon_cls_v1 (HCX-003, 2026-11-20)
 BASE_MODEL = "HCX-003"
 
 # ---------------------------------------------------------------- 설정·데이터 로드
@@ -40,6 +39,7 @@ def _load_env():
                 os.environ.setdefault(k.strip(), v.strip().strip("\"'"))
 
 _load_env()
+TUNED_TASK_ID = os.environ.get("TUNED_TASK_ID", "k6n4aqqb")   # minwon_cls_v1 (HCX-003, 2026-11-20). .env 로 교체 가능
 MAPPING = json.loads((HERE / "mapping.json").read_text(encoding="utf-8"))            # {분야: [원본...]}
 RULES = json.loads((HERE / "required_fields_18.json").read_text(encoding="utf-8"))  # 팀원 기준표
 GUIDE = json.loads((HERE / "guide_db.json").read_text(encoding="utf-8"))
